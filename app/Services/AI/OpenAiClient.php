@@ -27,9 +27,21 @@ class OpenAiClient
 
     public function transcribeAudio(string $audioPath): string
     {
+        $filename = basename($audioPath);
+        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        $mimeMap = [
+            'm4a' => 'audio/mp4',
+            'mp4' => 'audio/mp4',
+            'mp3' => 'audio/mpeg',
+            'wav' => 'audio/wav',
+            'ogg' => 'audio/ogg',
+            'webm' => 'audio/webm',
+        ];
+        $mime = $mimeMap[$extension] ?? 'audio/mp4';
+
         $response = Http::baseUrl(config('services.openai.base_url'))
             ->withToken(config('services.openai.api_key'))
-            ->attach('file', file_get_contents($audioPath), basename($audioPath))
+            ->attach('file', file_get_contents($audioPath), $filename, ['Content-Type' => $mime])
             ->post('/audio/transcriptions', [
                 'model' => 'whisper-1',
                 'language' => 'ru',

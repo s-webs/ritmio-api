@@ -22,6 +22,13 @@ class ParseVoiceRequest extends FormRequest
      */
     public function rules(): array
     {
-        return ['audio' => ['required', 'file', 'mimes:mp3,wav,m4a,ogg', 'max:20480']];
+        return [
+            'audio' => [
+                'required',
+                'file',
+                'mimetypes:audio/mpeg,audio/wav,audio/mp4,audio/m4a,audio/x-m4a,audio/ogg,audio/webm,video/mp4',
+                'max:20480',
+            ],
+        ];
     }
 }

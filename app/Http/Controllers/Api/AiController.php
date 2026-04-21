@@ -11,6 +11,7 @@ use App\Models\AiInteraction;
 use App\Models\Transaction;
 use App\Models\UploadedFile;
 use App\Services\AI\AiCommandParser;
+use App\Services\AI\OpenAiClient;
 use App\Services\Finance\TransactionService;
 use App\Services\Tasks\TaskService;
 
@@ -18,6 +19,7 @@ class AiController extends Controller
 {
     public function __construct(
         private readonly AiCommandParser $parser,
+        private readonly OpenAiClient $openAiClient,
         private readonly TransactionService $transactionService,
         private readonly TaskService $taskService,
     ) {
@@ -40,7 +42,8 @@ class AiController extends Controller
             'mime_type' => $request->file('audio')->getMimeType(),
             'size' => $request->file('audio')->getSize(),
         ]);
-        $transcription = 'Voice transcription is not implemented yet';
+        $fullPath = storage_path('app/public/' . $path);
+        $transcription = $this->openAiClient->transcribeAudio($fullPath);
         $parsed = $this->parser->parse($transcription);
         return $this->handleParsed($parsed, $transcription, $file);
     }

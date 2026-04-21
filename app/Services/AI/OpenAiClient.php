@@ -24,4 +24,19 @@ class OpenAiClient
 
         return is_string($content) ? (json_decode($content, true) ?: []) : [];
     }
+
+    public function transcribeAudio(string $audioPath): string
+    {
+        $response = Http::baseUrl(config('services.openai.base_url'))
+            ->withToken(config('services.openai.api_key'))
+            ->attach('file', file_get_contents($audioPath), basename($audioPath))
+            ->post('/audio/transcriptions', [
+                'model' => 'whisper-1',
+                'language' => 'ru',
+                'response_format' => 'text',
+            ])
+            ->throw();
+
+        return trim($response->body());
+    }
 }
